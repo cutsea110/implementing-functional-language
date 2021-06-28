@@ -1,4 +1,16 @@
-module Language where
+module Language
+  ( Expr (..)
+  , CoreExpr
+  , Name
+  , IsRec
+  , recursive, nonRecursive
+  , bindersOf, rhssOf
+  , Alter
+  , CoreAlt
+  , isAtomicExpr
+  , Program, CoreProgram
+  , ScDefn, CoreScDefn
+  ) where
 
 import Utils
 
