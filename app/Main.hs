@@ -1,6 +1,7 @@
 module Main where
 
 import Language (CoreProgram, Expr (..))
+import PrettyPrint (pprint)
 
 main :: IO ()
 main = do

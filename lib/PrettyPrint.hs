@@ -1,4 +1,6 @@
-module PrettyPrint where
+module PrettyPrint
+  ( pprint
+  ) where
 
 import Data.List (intersperse)
 
@@ -8,6 +10,8 @@ import Utils
 data Iseq = INil
           | IStr String
           | IAppend Iseq Iseq
+          | IIndent Iseq
+          | INewline
 
 iNil     :: Iseq                             -- ^ The empty iseq
 iStr     :: String -> Iseq                   -- ^ Turn a string into an iseq
@@ -19,15 +23,27 @@ iDisplay :: Iseq -> String                   -- ^ Turn an iseq into a string
 iNil     = INil
 iStr str = IStr str
 iAppend seq1 seq2 = IAppend seq1 seq2
-iNewline = IStr "\n"
-iIndent seq = seq
-iDisplay seq = flatten [seq]
+iNewline = INewline
+iIndent seq = IIndent seq
+iDisplay seq = flatten 0 [(seq, 0)]
 
-flatten :: [Iseq] -> String
-flatten []                       = ""
-flatten (INil:seqs)              = flatten seqs
-flatten (IStr s:seqs)            = s ++ flatten seqs
-flatten (IAppend seq1 seq2:seqs) = flatten (seq1:seq2:seqs)
+flatten :: Int                   -- ^ Current column; 0 for first column
+        -> [(Iseq, Int)]         -- ^ Work list
+        -> String                -- ^ Result
+flatten col [] = ""
+flatten col ((INil, indent):seqs)
+  = flatten indent seqs
+flatten col ((IStr s, indent):seqs)
+  = s ++ flatten indent seqs
+flatten col ((IAppend seq1 seq2, indent):seqs)
+  = flatten indent ((seq1, indent):(seq2, indent):seqs)
+flatten col ((IIndent seq, indent):seqs)
+  = flatten col ((seq, col):seqs)
+flatten col ((INewline, indent):seqs)
+  = '\n' : (space indent) ++ (flatten indent seqs)
+
+space :: Int -> String
+space n = take n (repeat ' ')
 
 pprExpr :: CoreExpr -> Iseq
 pprExpr (ENum n) = iStr (show n)
@@ -38,8 +54,7 @@ pprExpr (ELet isrec defns expr)
             , iStr "  ", iIndent (pprDefns defns), iNewline
             , iStr "in", pprExpr expr
             ]
-  where keyword | not isrec = "let"
-                | isrec     = "letrec"
+  where keyword = if isrec then "letrec" else "let"
 
 pprAExpr :: CoreExpr -> Iseq
 pprAExpr e | isAtomicExpr e = pprExpr e
@@ -63,12 +78,11 @@ pprint :: CoreProgram -> String
 pprint prog = iDisplay (pprProgram prog)
 
 pprProgram :: CoreProgram -> Iseq
-pprProgram scdefns = iConcat (map pprScDefn scdefns)
+pprProgram scdefns = iInterleave iNewline (map pprScDefn scdefns)
 
 pprScDefn :: (Name, [Name], CoreExpr) -> Iseq
 pprScDefn (name, args, expr)
-  = iConcat [ iStr name
-            , iConcat (map iStr args)
+  = iConcat [ iInterleave (iStr " ") (map iStr (name:args))
             , iStr " = "
             , iIndent (pprExpr expr)
             ]
