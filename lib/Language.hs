@@ -55,3 +55,9 @@ type CoreProgram = Program Name
 
 type ScDefn a = (Name, [a], Expr a)
 type CoreScDefn = ScDefn Name
+
+
+-- here ???
+mkMultiAp :: Int -> CoreExpr -> CoreExpr -> CoreExpr
+mkMultiAp n e1 e2 = foldl EAp e1 (take n e2s)
+  where e2s = e2:e2s
