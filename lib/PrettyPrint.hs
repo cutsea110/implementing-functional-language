@@ -66,10 +66,9 @@ pprProgram :: CoreProgram -> Iseq
 pprProgram scdefns = iConcat (map pprScDefn scdefns)
 
 pprScDefn :: (Name, [Name], CoreExpr) -> Iseq
-pprScDefn (v, xs, e)
-  = iConcat [ iStr v
-            , iConcat (map iStr xs)
+pprScDefn (name, args, expr)
+  = iConcat [ iStr name
+            , iConcat (map iStr args)
             , iStr " = "
-            , pprExpr e
+            , iIndent (pprExpr expr)
             ]
-
