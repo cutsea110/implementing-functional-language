@@ -48,6 +48,9 @@ space n = take n (repeat ' ')
 pprExpr :: CoreExpr -> Iseq
 pprExpr (ENum n) = iStr (show n)
 pprExpr (EVar v) = iStr v
+pprExpr (EAp (EAp (EVar op) e1) e2)
+  | op `elem` ["+", "*", "-", "/", "<", ">"]
+  = iInterleave (iStr " ") [ pprAExpr e1, iStr op, pprAExpr e2 ]
 pprExpr (EAp e1 e2) = (pprExpr e1) `iAppend` (iStr " ") `iAppend` (pprAExpr e2)
 pprExpr (ELet isrec defns expr)
   = iConcat [ iStr keyword, iNewline
