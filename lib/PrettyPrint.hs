@@ -19,13 +19,22 @@ iAppend  :: Iseq -> Iseq -> Iseq             -- ^ Append two iseqs
 iNewline :: Iseq                             -- ^ New line with indentation
 iIndent  :: Iseq -> Iseq                     -- ^ Indent an iseq
 iDisplay :: Iseq -> String                   -- ^ Turn an iseq into a string
+iNum     :: Int -> Iseq                      -- ^ Trun a num into an iseq
+iFWNum   :: Int -> Int -> Iseq               -- ^ Same as iNum with left-padded spaces
+iLayn    :: [Iseq] -> Iseq                   -- ^ Lays out a list, numbering the items
 
-iNil     = INil
-iStr str = IStr str
+iNil              = INil
+iStr str          = IStr str
 iAppend seq1 seq2 = IAppend seq1 seq2
-iNewline = INewline
-iIndent seq = IIndent seq
-iDisplay seq = flatten 0 [(seq, 0)]
+iNewline          = INewline
+iIndent seq       = IIndent seq
+iDisplay seq      = flatten 0 [(seq, 0)]
+iNum n            = iStr (show n)
+iFWNum width n    = iStr (space (width - length digits) ++ digits)
+  where digits = show n
+iLayn seqs        = iConcat (map lay_item (zip [1..] seqs))
+  where lay_item (n, seq)
+          = iConcat [ iFWNum 4 n, iStr ") ", iIndent seq, iNewline ]
 
 flatten :: Int                   -- ^ Current column; 0 for first column
         -> [(Iseq, Int)]         -- ^ Work list
