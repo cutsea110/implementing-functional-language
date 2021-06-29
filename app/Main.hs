@@ -19,4 +19,10 @@ preludeDefs
                                    (EVar "f")
                                    (EAp (EVar "g") (EVar "x")))
     , ("twice", ["f"], EAp (EAp (EVar "compose") (EVar "f")) (EVar "f"))
+    , ("quadruple", ["x"],
+       ELet False
+        [ ("twice_x", EAp (EAp (EVar "+") (EVar "x")) (EVar "x"))
+        , ("double", EAp (EVar "*") (ENum 2))
+        ]
+        (EAp (EAp (EVar "+") (EVar "twice_x")) (EVar "twice_x")))
     ]

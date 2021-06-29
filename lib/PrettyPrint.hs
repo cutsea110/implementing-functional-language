@@ -34,7 +34,7 @@ flatten col [] = ""
 flatten col ((INil, indent):seqs)
   = flatten indent seqs
 flatten col ((IStr s, indent):seqs)
-  = s ++ flatten indent seqs
+  = s ++ flatten (length s + indent) seqs
 flatten col ((IAppend seq1 seq2, indent):seqs)
   = flatten indent ((seq1, indent):(seq2, indent):seqs)
 flatten col ((IIndent seq, indent):seqs)
@@ -52,7 +52,7 @@ pprExpr (EAp e1 e2) = (pprExpr e1) `iAppend` (iStr " ") `iAppend` (pprAExpr e2)
 pprExpr (ELet isrec defns expr)
   = iConcat [ iStr keyword, iNewline
             , iStr "  ", iIndent (pprDefns defns), iNewline
-            , iStr "in", pprExpr expr
+            , iStr "in ", pprExpr expr
             ]
   where keyword = if isrec then "letrec" else "let"
 
