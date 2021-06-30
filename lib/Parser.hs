@@ -13,6 +13,7 @@ clex (c:cs) | isDigit c = (c:num_token) : clex rest_cs
   where (num_token, rest_cs) = span isDigit cs
 clex (c:cs) | isAlpha c = (c:var_tok) : clex rest_cs
   where (var_tok, rest_cs) = span isIdChar cs
+clex (c:c':cs) | [c,c'] `elem` twoCharOps = [c,c'] : clex cs
 clex (c:cs) = [c]:clex cs
 clex [] = []
 
@@ -21,6 +22,9 @@ isIdChar c = isAlpha c || isDigit c || c == '_'
 
 isWhiteSpace :: Char -> Bool
 isWhiteSpace c = c `elem` " \t\n"
+
+twoCharOps :: [String]
+twoCharOps = ["==", "~=", ">=", "<=", "->"]
 
 type Parser a = [Token] -> [(a, [Token])]
 
