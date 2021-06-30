@@ -4,24 +4,27 @@ import Data.Char (isDigit, isSpace, isAlpha)
 
 import Language
 
-type Token = String   -- A token is never empty
+type LineNumber = Int
+type Token = (LineNumber, String)   -- A token is never empty
 
-clex (c:cs) | isWhiteSpace c = clex cs
-clex ('-':'-':cs) = clex rest_cs
+clex :: LineNumber -> String -> [Token]
+clex n (c:cs) | isWhiteSpace c = clex n cs
+clex n ('\n':cs) = clex (n+1) cs
+clex n ('-':'-':cs) = clex n rest_cs
   where rest_cs = dropWhile (/= '\n') cs
-clex (c:cs) | isDigit c = (c:num_token) : clex rest_cs
+clex n (c:cs) | isDigit c = (n, c:num_token) : clex n rest_cs
   where (num_token, rest_cs) = span isDigit cs
-clex (c:cs) | isAlpha c = (c:var_tok) : clex rest_cs
+clex n (c:cs) | isAlpha c = (n, c:var_tok) : clex n rest_cs
   where (var_tok, rest_cs) = span isIdChar cs
-clex (c:c':cs) | [c,c'] `elem` twoCharOps = [c,c'] : clex cs
-clex (c:cs) = [c]:clex cs
-clex [] = []
+clex n (c:c':cs) | [c,c'] `elem` twoCharOps = (n, [c,c']) : clex n cs
+clex n (c:cs) = (n, [c]) : clex n cs
+clex n [] = []
 
 isIdChar :: Char -> Bool
 isIdChar c = isAlpha c || isDigit c || c == '_'
 
 isWhiteSpace :: Char -> Bool
-isWhiteSpace c = c `elem` " \t\n"
+isWhiteSpace c = c `elem` " \t"
 
 twoCharOps :: [String]
 twoCharOps = ["==", "~=", ">=", "<=", "->"]
@@ -29,7 +32,7 @@ twoCharOps = ["==", "~=", ">=", "<=", "->"]
 type Parser a = [Token] -> [(a, [Token])]
 
 pLit :: String -> Parser String
-pLit s (tok:toks) | s == tok = [(s, toks)]
+pLit s ((_, tok):toks) | s == tok = [(s, toks)]
 pLit s []         = []
 
 pVar :: Parser String
