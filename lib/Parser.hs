@@ -58,7 +58,10 @@ pOneOrMore :: Parser a -> Parser [a]
 pOneOrMore p = pThen (:) p (pOneOrMore p)
 
 pApply :: Parser a -> (a -> b) -> Parser b
-pApply = undefined
+pApply p f toks = [ (v2, toks1)
+                  | (v1, toks1) <- p toks
+                  , let v2 = f v1
+                  ]
 
 parse :: String -> CoreProgram
 parse = undefined
