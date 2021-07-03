@@ -52,10 +52,10 @@ pZeroOrMore :: Parser a -> Parser [a]
 pZeroOrMore p = pOneOrMore p `pAlt` pEmpty []
 
 pEmpty :: a -> Parser a
-pEmpty = undefined
+pEmpty x toks= [(x, toks)]
 
 pOneOrMore :: Parser a -> Parser [a]
-pOneOrMore = undefined
+pOneOrMore p = pThen (:) p (pOneOrMore p)
 
 pApply :: Parser a -> (a -> b) -> Parser b
 pApply = undefined
