@@ -61,6 +61,19 @@ pOneOrMore p toks
     , (vs, toks2) <- pOneOrMore p toks1
     ]
 
+pOneOrMoreWithSep :: Parser a -> Parser b -> Parser [a]
+pOneOrMoreWithSep p sep toks
+  = [ (v1:vs, toks2)
+    | (v1, toks1) <- p toks
+    , (vs, toks2) <- sub toks1
+    ]
+  where sub toks
+          = [ (v1:vs, toks3)
+            | (_,  toks1) <- sep toks
+            , (v1, toks2) <- p toks1
+            , (vs, toks3) <- sub toks2
+            ]
+
 pApply :: Parser a -> (a -> b) -> Parser b
 pApply p f toks
   = [ (v2, toks1)
