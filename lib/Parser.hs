@@ -52,15 +52,15 @@ pZeroOrMore :: Parser a -> Parser [a]
 pZeroOrMore p = pOneOrMore p `pAlt` pEmpty []
 
 pEmpty :: a -> Parser a
-pEmpty x toks= [(x, toks)]
+pEmpty x toks = [(x, toks)]
 
 pOneOrMore :: Parser a -> Parser [a]
 pOneOrMore p = pThen (:) p (pOneOrMore p)
 
 pOneOrMoreWithSep :: Parser a -> Parser b -> Parser [a]
-pOneOrMoreWithSep p sep = pThen (:) p (sub p sep)
+pOneOrMoreWithSep p sep = pThen (:) p sub
   where
-    sub p sep = u where u = pThen (:) (sep *> p) u
+    sub = pThen (:) (sep *> p) sub
 
 pApply :: Parser a -> (a -> b) -> Parser b
 pApply p f toks
