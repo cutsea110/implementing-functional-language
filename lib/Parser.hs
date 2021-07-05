@@ -60,7 +60,7 @@ pOneOrMore p = pThen (:) p (pOneOrMore p)
 pOneOrMoreWithSep :: Parser a -> Parser b -> Parser [a]
 pOneOrMoreWithSep p sep = pThen (:) p (sub p sep)
   where
-    sub p sep = pThen (:) (sep *> p) (sub p sep)
+    sub p sep = u where u = pThen (:) (sep *> p) u
 
 pApply :: Parser a -> (a -> b) -> Parser b
 pApply p f toks
