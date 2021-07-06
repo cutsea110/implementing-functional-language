@@ -38,6 +38,10 @@ pLit s []         = []
 pVar :: Parser String
 pVar [] = []
 
+pSat :: (String -> Bool) -> Parser String
+pSat p ((n, tok):toks) | p tok = [(tok, toks)]
+pSat p [] = []
+
 pAlt :: Parser a -> Parser a -> Parser a
 pAlt p1 p2 toks = p1 toks ++ p2 toks
 
