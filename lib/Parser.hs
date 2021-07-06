@@ -35,7 +35,10 @@ pLit :: String -> Parser String
 pLit s = pSat (== s)
 
 pVar :: Parser String
-pVar [] = []
+pVar = pSat ((&&) <$> all isIdChar <*> (`notElem` keywords))
+
+keywords :: [String]
+keywords = ["let", "letrec", "case", "in", "of", "Pack"]
 
 pSat :: (String -> Bool) -> Parser String
 pSat p ((n, tok):toks) | p tok = [(tok, toks)]
