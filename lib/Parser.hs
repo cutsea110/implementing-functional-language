@@ -32,8 +32,7 @@ twoCharOps = ["==", "~=", ">=", "<=", "->"]
 type Parser a = [Token] -> [(a, [Token])]
 
 pLit :: String -> Parser String
-pLit s ((_, tok):toks) | s == tok = [(s, toks)]
-pLit s []         = []
+pLit s = pSat (== s)
 
 pVar :: Parser String
 pVar [] = []
