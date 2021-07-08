@@ -64,7 +64,7 @@ pEmpty :: a -> Parser a
 pEmpty x toks = [(x, toks)]
 
 pOneOrMore :: Parser a -> Parser [a]
-pOneOrMore p = pThen (:) p (pOneOrMore p)
+pOneOrMore p = pThen (:) p (pZeroOrMore p)
 
 pOneOrMoreWithSep :: Parser a -> Parser b -> Parser [a]
 pOneOrMoreWithSep p sep = pThen (:) p sub
