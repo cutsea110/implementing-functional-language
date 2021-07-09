@@ -78,5 +78,39 @@ pApply p f toks
     , let v2 = f v1
     ]
 
+pProgram :: Parser CoreProgram
+pProgram = pOneOrMoreWithSep pSc (pLit ";")
+
+pSc :: Parser CoreScDefn
+pSc = pThen4 mkSc pVar (pZeroOrMore pVar) (pLit "=") pExpr
+
+pThen4 :: (a -> b -> c -> d -> e)
+       -> Parser a
+       -> Parser b
+       -> Parser c
+       -> Parser d
+       -> Parser e
+pThen4 f p1 p2 p3 p4 toks
+  = [ (f v1 v2 v3 v4, toks4)
+    | (v1, toks1) <- p1 toks
+    , (v2, toks2) <- p2 toks1
+    , (v3, toks3) <- p3 toks2
+    , (v4, toks4) <- p4 toks3
+    ]
+
+mkSc :: a -> b -> c -> d -> e
+mkSc = undefined
+
+pExpr = pThen EAp pExpr pAexpr
+
+pAexpr = undefined
+
+
 parse :: String -> CoreProgram
 parse = undefined
+
+syntax = take_first_parse . pProgram
+  where
+    take_first_parse ((prog, []):others) = prog
+    take_first_parse (parse:others)      = take_first_parse others
+    take_first_parse other               = error "Syntax error"
